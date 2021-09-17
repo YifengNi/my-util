@@ -1,7 +1,5 @@
 package com.yifeng;
 
-import java.math.BigDecimal;
-
 /**
  * @Author niyf
  * @Date 2021-9-2 11:19
@@ -16,11 +14,15 @@ public class Test {
         // BigDecimal res = decimal.add(BigDecimal.valueOf(1.23));
         // System.out.println("res = " + res);
 
-        BigDecimal n1 = BigDecimal.valueOf(0.0000);
-        BigDecimal n2 = BigDecimal.valueOf(0);
-        System.out.println(n1.compareTo(BigDecimal.ZERO));
+        // BigDecimal n1 = BigDecimal.valueOf(0.0000);
+        // BigDecimal n2 = BigDecimal.valueOf(0);
+        // System.out.println(n1.compareTo(BigDecimal.ZERO));
 
 
+        String s = "com/xiaopeng/car/mapper/oas/CarPreLockOperationMapper";
+        int index = s.lastIndexOf('/');
+        System.out.println(index);
+        System.out.println(s.substring(index + 1));
 
     }
 }
