@@ -16,12 +16,19 @@ import java.util.List;
 public class FileUtil {
 
     public static List<String> readToStringList(String fileName) {
+        return readToStringList(fileName, false);
+    }
+
+    public static List<String> readToStringList(String fileName, boolean isTrimmed) {
         BufferedReader br = null;
         List<String> list = new ArrayList<>();
         try {
             br = new BufferedReader(new FileReader(fileName));
             String str = null;
             while ((str = br.readLine()) != null) {
+                if (isTrimmed) {
+                    str = str.trim();
+                }
                 list.add(str);
             }
         } catch (Exception e) {

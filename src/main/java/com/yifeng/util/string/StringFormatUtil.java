@@ -4,10 +4,9 @@ import com.yifeng.util.file.FileUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @Author niyf
@@ -23,24 +22,13 @@ public class StringFormatUtil {
     // }
 
     public static void main(String[] args) {
-        // String fileName = "E:\\文档\\工作\\查询订单分配列表.txt";
-        // trimString(fileName);
+        String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
+        generateCodeFromDbFieldTxt(fileName);
 
-        String fileName = "E:\\文档\\工作\\订单信息主动推送接口.txt";
-        generateCodeFromApiTxt(fileName);
+        // String fileName = "E:\\文档\\工作\\订单信息主动推送接口.txt";
+        // generateCodeFromApiTxt(fileName);
 
-    }
 
-    public static void trimString(String fileName) {
-        List<String> stringList = new ArrayList<>();
-        for (String s : FileUtil.readToStringList(fileName)) {
-            if (s.endsWith("\");")) {
-                s = s.substring(0, s.length() - 3);
-            }
-            stringList.add(s);
-        }
-
-        FileUtil.writeToFile(stringList, FileUtil.getWriteFileName(fileName));
     }
 
     public static void generateCodeFromApiTxt(String fileName) {
@@ -65,6 +53,68 @@ public class StringFormatUtil {
             } catch (Exception e) {
                 System.out.println(Arrays.asList(ss));
                 System.out.println("报错：--> " + s + " --> " + e.getMessage());
+            }
+        }
+
+        FileUtil.writeToFile(stringList, FileUtil.getWriteFileName(fileName));
+    }
+
+    public static void generateCodeFromDbFieldTxt(String fileName) {
+        List<String> stringList = new ArrayList<>();
+        String regex = "^\\w+$";
+        Pattern pattern = Pattern.compile(regex);// 匹配的模式
+
+        for (String s : FileUtil.readToStringList(fileName, true)) {
+            String global = s;
+            boolean isSuccessful = false;
+
+            try {
+                String[] splitByComma = s.split(",");
+                for (int i = splitByComma.length - 1; i >= 0; i--) {
+                    s = splitByComma[i].trim();
+                    String[] splitBySpace = s.split("\\s");
+
+                    for (int j = splitBySpace.length - 1; j >= 0; j--) {
+                        s = splitBySpace[j].trim();
+                        String[] splitByPoint = s.split("\\.");
+
+                        for (int k = splitByPoint.length - 1; k >= 0; k--) {
+                            s = splitByPoint[k].trim();
+                            s = StringUtil.underscoreToCamel(s);
+
+                            Matcher matcher = pattern.matcher(s);
+                            if (matcher.matches()) {
+
+                                // @ApiModelProperty("收车价格")
+                                // @JsonProperty("SECOND_RECEIVE_PRICE")
+                                // private String secondReceivePrice;
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("\t@ApiModelProperty(\"").append("请添加备注").append("\")\n\t")
+                                        // .append("@JsonProperty(\"").append(ss[0]).append("\")\n\t")
+                                        .append("private ").append("String").append(" ").append(s).append(";\n");
+
+                                stringList.add(sb.toString());
+                                isSuccessful = true;
+                                break;
+                            }
+                        }
+
+                        if (isSuccessful) {
+                            break;
+                        }
+                    }
+
+                    if (isSuccessful) {
+                        break;
+                    }
+                }
+
+                if (!isSuccessful) {
+                    throw new RuntimeException("字符串不包含合法字段名");
+                }
+
+            } catch (Exception e) {
+                System.out.println("报错：-->" + global + "<--> " + e.getMessage());
             }
         }
 
