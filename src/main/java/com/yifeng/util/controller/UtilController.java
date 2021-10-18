@@ -32,7 +32,7 @@ public class UtilController {
             @ApiImplicitParam(name = "underscoreToCamel", value = "大写下划线转驼峰", required = false, dataType = "String"
                     , paramType = "query", defaultValue = "TEST_WORD"),
     })
-    public Map<String, Object> queryCarConfigSeries(@RequestParam(required = false) String camelToUnderscore
+    public Map<String, Object> stringConvert(@RequestParam(required = false) String camelToUnderscore
             , @RequestParam(required = false) String underscoreToCamel) {
         Map<String, Object> data = new HashMap<>();
 
