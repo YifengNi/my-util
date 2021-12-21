@@ -1,10 +1,13 @@
 package com.yifeng.util.string;
 
 import com.yifeng.util.file.FileUtil;
+import org.apache.commons.collections4.MapUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -15,20 +18,40 @@ import java.util.regex.Pattern;
  **/
 public class StringFormatUtil {
 
-    // private static final Map<String, String> PARAM_TYPE_MAP = new HashMap<>();
-    //
-    // static {
-    //     PARAM_TYPE_MAP.put("string", "String");
-    // }
+    public static final String FULL_DATE_FORMAT_STRING = "yyyyMMddHHmmssSSS";
 
     public static void main(String[] args) {
-        String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
-        generateCodeFromDbFieldTxt(fileName);
+        // String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
+        // generateCodeFromDbFieldTxt(fileName);
 
         // String fileName = "E:\\文档\\工作\\订单信息主动推送接口.txt";
         // generateCodeFromApiTxt(fileName);
 
+        // List<String> carSourceTypeList = Arrays.asList("1", "2", "3");
+        // System.out.println("carSourceTypeList = " + carSourceTypeList);
 
+        // String format = LocalDateTime.now().format(DateTimeFormatter.ofPattern(FULL_DATE_FORMAT_STRING));
+        // System.out.println("format = " + format);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("aa", 123);
+        map.put("bb", 34L);
+        map.put("cc", true);
+        map.put("dd", "56");
+
+        String aa = MapUtils.getString(map, "aa");
+        String bb = MapUtils.getString(map, "bb");
+        String cc = MapUtils.getString(map, "cc");
+        Integer dd = MapUtils.getInteger(map, "dd");
+        Long aa2 = MapUtils.getLong(map, "aa");
+        Integer bb2 = MapUtils.getInteger(map, "bb");
+
+        System.out.println("aa = " + aa);
+        System.out.println("bb = " + bb);
+        System.out.println("cc = " + cc);
+        System.out.println("dd = " + dd);
+        System.out.println("aa2 = " + aa2);
+        System.out.println("bb2 = " + bb2);
     }
 
     public static void generateCodeFromApiTxt(String fileName) {
