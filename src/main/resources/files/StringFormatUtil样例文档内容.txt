@@ -1,0 +1,82 @@
+1、com.yifeng.util.string.StringFormatUtil.generateCodeFromApiTxt 方法文档字符串样例：
+1.1、入参文档：
+-- 文档开始>>
+
+sh.CAR_STOCK_HOUSE_ID,
+sh.CAR_HOUSE_CODE,
+
+-- 文档结束<<
+
+1.2、出参文档：
+-- 文档开始>>
+
+@ApiModelProperty("请添加备注")
+private String carStockHouseId;
+
+@ApiModelProperty("请添加备注")
+private String carHouseCode;
+
+-- 文档结束<<
+
+2、com.yifeng.util.string.StringFormatUtil.generateCodeFromDbFieldTxtV2 方法文档字符串样例：
+2.1、入参文档：
+-- 文档开始>>
+
+DATE_FORMAT( ORDERD.DELIVERY_DATE, '%Y-%m-%d %H:%i:%s' ) DELIVERY_DATE, /*实际交付时间、交付时间*/
+CT.CAR_SERIES_CODE,
+fage.LOOKUP_VALUE_NAME DLR_LOCK_FLAG, /*车辆锁单状态*/
+/*车系名称*/
+CT.CAR_SERIES_CN,
+/*内饰颜色*/
+
+-- 文档结束<<
+
+2.2、出参文档：
+-- 文档开始>>
+
+@ApiModelProperty("实际交付时间、交付时间")
+	private String deliveryDate;
+
+	@ApiModelProperty("请添加备注")
+	private String carSeriesCode;
+
+	@ApiModelProperty("车辆锁单状态")
+	private String dlrLockFlag;
+
+	@ApiModelProperty("内饰颜色")
+	private String carSeriesCn;
+
+-- 文档结束<<
+
+3、com.yifeng.util.string.StringFormatUtil.generateCodeFromApiTxt 方法文档字符串样例：
+3.1、入参文档：
+-- 文档开始>>
+
+SALE_ORDER_CODE	订单号	String
+businessCode（待定）	商机ID	String
+REPLACE_ORDER_CODE	置换单号	String
+CAR_CONFIG_CODE	订单车型配置编码	String
+
+-- 文档结束<<
+
+3.2、出参文档：
+-- 文档开始>>
+
+@ApiModelProperty("订单号")
+@JsonProperty("SALE_ORDER_CODE")
+private String saleOrderCode;
+
+@ApiModelProperty("商机ID")
+@JsonProperty("businessCode（待定）")
+private String businesscode（待定）;
+
+@ApiModelProperty("置换单号")
+@JsonProperty("REPLACE_ORDER_CODE")
+private String replaceOrderCode;
+
+@ApiModelProperty("订单车型配置编码")
+@JsonProperty("CAR_CONFIG_CODE")
+private String carConfigCode;
+
+-- 文档结束<<
+
