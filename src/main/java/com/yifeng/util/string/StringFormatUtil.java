@@ -184,7 +184,7 @@ public class StringFormatUtil {
                     s = splitByComma[0].trim();
                     Matcher remarkMatcher = remarkPattern.matcher(s);
                     if (remarkMatcher.find()) {
-                        String lastStr = stringList.get(idx).replaceFirst(defaultRemark, remarkMatcher.group(1));
+                        String lastStr = stringList.get(idx).replaceFirst(defaultRemark, remarkMatcher.group(1).trim());
                         stringList.set(idx, lastStr);
                         continue;
                     }
@@ -199,7 +199,7 @@ public class StringFormatUtil {
                     if (isRemarkNotFound) {
                         Matcher remarkMatcher = remarkPattern.matcher(s);
                         if (remarkMatcher.find()) {
-                            remark = remarkMatcher.group(1);
+                            remark = remarkMatcher.group(1).trim();
                             isRemarkNotFound = false;
                             continue;
                         }
