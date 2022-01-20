@@ -1,6 +1,8 @@
 package com.yifeng.util.string;
 
+import cn.hutool.core.text.StrJoiner;
 import com.yifeng.util.file.FileUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +20,16 @@ public class StringFormatUtil {
     public static final String FULL_DATE_FORMAT_STRING = "yyyyMMddHHmmssSSS";
 
     public static void main(String[] args) {
+        // String str = "SALE_ORDER_CODE\n" +
+        //         "REPLACE_ORDER_CODE\n" +
+        //         "CUST_NAME\n" +
+        //         "CRED_CODE\n" +
+        //         "CUST_CARD\n" +
+        //         "CUST_PHONE\n" +
+        //         "AUDIT_STATUS\n" +
+        //         "CUST_TYPE";
+        // System.out.println(batchUnderscoreToCamel(str));
+
         String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
         generateCodeFromDbFieldTxtV2(fileName);
 
@@ -169,7 +181,11 @@ public class StringFormatUtil {
         String defaultRemark = "请添加备注";
 
         int idx = -1;
-        for (String s : FileUtil.readToStringList(fileName, true)) {
+        // 设置position属性
+        int fieldIndex = 1;
+        List<String> fieldList = FileUtil.readToStringList(fileName, true);
+        for (int x = 0; x < fieldList.size(); x++) {
+            String s = fieldList.get(x);
             String global = s;
             boolean isSuccessful = false;
 
@@ -210,6 +226,18 @@ public class StringFormatUtil {
 
                     for (int j = splitBySpace.length - 1; j >= 0; j--) {
                         s = splitBySpace[j].trim();
+
+                        // 最后一行要做特殊处理，因为字段名跟备注之间没有逗号分隔，比如：d.LICENSE_LOCATION_CITY  /*上牌城市*/
+                        // 判断是否是备注，是就获取该值，然后遍历下一个
+                        if (x == fieldList.size() - 1 && isRemarkNotFound) {
+                            Matcher remarkMatcher = remarkPattern.matcher(s);
+                            if (remarkMatcher.find()) {
+                                remark = remarkMatcher.group(1).trim();
+                                isRemarkNotFound = false;
+                                continue;
+                            }
+                        }
+
                         // 根据点号切割
                         String[] splitByPoint = s.split("\\.");
 
@@ -224,12 +252,14 @@ public class StringFormatUtil {
                                 // @JsonProperty("SECOND_RECEIVE_PRICE")
                                 // private String secondReceivePrice;
                                 StringBuilder sb = new StringBuilder();
-                                sb.append("\t@ApiModelProperty(\"").append(remark).append("\")\n\t")
+                                sb.append("\t@ApiModelProperty(value = \"").append(remark)
+                                        .append("\", position = ").append(fieldIndex).append(")\n\t")
                                         // .append("@JsonProperty(\"").append(ss[0]).append("\")\n\t")
                                         .append("private ").append("String").append(" ").append(s).append(";\n");
 
                                 stringList.add(sb.toString());
                                 isSuccessful = true;
+                                fieldIndex++;
                                 break;
                             }
                         }
@@ -257,4 +287,19 @@ public class StringFormatUtil {
         FileUtil.writeToFile(stringList, FileUtil.getWriteFileName(fileName));
     }
 
+    /**
+     * 根据api文档（从Excel复制出来，字段间使用制表符/空格分隔）生成dto字段代码
+     * @param inTxt
+     */
+    public static String batchUnderscoreToCamel(String inTxt) {
+        if (StringUtils.isBlank(inTxt)) {
+            return inTxt;
+        }
+        StrJoiner joiner = new StrJoiner("\n");
+        for (String s : inTxt.split("\\n")) {
+            joiner.append(StringUtil.underscoreToCamel(s));
+        }
+
+        return joiner.toString();
+    }
 }
