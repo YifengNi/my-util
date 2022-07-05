@@ -1,6 +1,7 @@
 package com.yifeng.util.string;
 
 import cn.hutool.core.text.StrJoiner;
+import com.yifeng.dto.Data2ExcelDTO;
 import com.yifeng.util.file.FileUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @Author niyf
@@ -30,8 +32,15 @@ public class StringFormatUtil {
         //         "CUST_TYPE";
         // System.out.println(batchUnderscoreToCamel(str));
 
-        String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
-        generateCodeFromDbFieldTxtV2(fileName);
+        String fileName = "E:\\文档\\工作\\lookup表插入sql语句字段.txt";
+        generateExcelFromSql(fileName);
+
+        // String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
+        // generateCodeFromDbFieldTxtV2(fileName, false);
+
+        // String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
+        // generateCodeFromDbFieldTxtV2(fileName, true);
+
 
         // String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
         // generateCodeFromDbFieldTxt(fileName);
@@ -168,8 +177,9 @@ public class StringFormatUtil {
      * 根据数据库sql查询字段列表生成dto字段代码（包含注释）
      * generateCodeFromDbFieldTxt的升级版
      * @param fileName
+     * @param showPositionFlag 是否展示ApiModelProperty注解的position属性
      */
-    public static void generateCodeFromDbFieldTxtV2(String fileName) {
+    public static void generateCodeFromDbFieldTxtV2(String fileName, boolean showPositionFlag) {
         List<String> stringList = new ArrayList<>();
         // 字段
         String fieldRegex = "^\\w+$";
@@ -252,8 +262,14 @@ public class StringFormatUtil {
                                 // @JsonProperty("SECOND_RECEIVE_PRICE")
                                 // private String secondReceivePrice;
                                 StringBuilder sb = new StringBuilder();
-                                sb.append("\t@ApiModelProperty(value = \"").append(remark)
-                                        .append("\", position = ").append(fieldIndex).append(")\n\t")
+                                sb.append("\t@ApiModelProperty(value = \"").append(remark);
+
+                                // 按需输出position属性
+                                if (showPositionFlag) {
+                                    sb.append("\", position = ").append(fieldIndex);
+                                }
+
+                                sb.append("\")\n\t")
                                         // .append("@JsonProperty(\"").append(ss[0]).append("\")\n\t")
                                         .append("private ").append("String").append(" ").append(s).append(";\n");
 
@@ -301,5 +317,23 @@ public class StringFormatUtil {
         }
 
         return joiner.toString();
+    }
+
+    public static void generateExcelFromSql(String fileName) {
+        List<String> dataList = FileUtil.readToStringList(fileName, true);
+        List<Data2ExcelDTO> resultList = dataList.stream()
+                .filter(item -> item.startsWith("VALUES"))
+                .map(item -> item.replaceFirst("VALUES\\(", "")
+                        .replaceFirst("\\);", "").replaceAll("'", ""))
+                .map(item -> item.split(", "))
+                .map(item -> {
+                    Data2ExcelDTO data = new Data2ExcelDTO();
+                    data.setLookupTypeCode(item[0]).setLookupValueCode(item[1]).setLookupValueName(item[2])
+                            .setRemark(item[10]);
+                    return data;
+                }).collect(Collectors.toList());
+        String[] strs = fileName.split("\\.");
+        String newFileName = strs[0] + "-new.xlsx";
+        FileUtil.writeExcel4OneSheet(newFileName, "待配置参数", Data2ExcelDTO.class, resultList);
     }
 }

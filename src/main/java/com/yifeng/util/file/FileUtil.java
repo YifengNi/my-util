@@ -1,10 +1,14 @@
 package com.yifeng.util.file;
 
+import com.alibaba.excel.EasyExcel;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +67,27 @@ public class FileUtil {
     public static String getWriteFileName(String fileName) {
         String[] strs = fileName.split("\\.");
         return strs[0] + "-new." + strs[1];
+    }
+
+    /**
+     * 写入Excel文件，只写入一个sheet
+     * @param fileName
+     * @param sheetName
+     * @param modelClass
+     * @param dataList
+     * @param <T>
+     */
+    public static <T> void writeExcel4OneSheet(String fileName, String sheetName, Class<T> modelClass, List<T> dataList) {
+        try (OutputStream out = new FileOutputStream(fileName)) {
+            EasyExcel.write(out, modelClass).sheet(sheetName)
+                    // 设置字段宽度为自动调整，不太精确
+                    // .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                    .doWrite(dataList);
+            System.out.println("Excel文件[" + fileName + "]写入完成");
+        } catch (Exception e) {
+            System.out.println("写入Excel文件[" + fileName + "]报错");
+            e.printStackTrace();
+        }
     }
 
 }
