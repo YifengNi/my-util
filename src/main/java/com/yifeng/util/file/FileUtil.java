@@ -1,6 +1,7 @@
 package com.yifeng.util.file;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.listener.PageReadListener;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,6 +12,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Author niyf
@@ -65,8 +67,13 @@ public class FileUtil {
     }
 
     public static String getWriteFileName(String fileName) {
+        return getWriteFileName(fileName, null);
+    }
+
+    public static String getWriteFileName(String fileName, String suffix) {
         String[] strs = fileName.split("\\.");
-        return strs[0] + "-new." + strs[1];
+        suffix = Objects.isNull(suffix) ? strs[1] : suffix;
+        return strs[0] + "-new." + suffix;
     }
 
     /**
@@ -88,6 +95,12 @@ public class FileUtil {
             System.out.println("写入Excel文件[" + fileName + "]报错");
             e.printStackTrace();
         }
+    }
+
+    public static <T> List<T> readExcel(String fileName, Class<T> modelClass) {
+        List<T> resultList = new ArrayList<>();
+        EasyExcel.read(fileName, modelClass, new PageReadListener<T>(resultList::addAll)).sheet().doRead();
+        return resultList;
     }
 
 }

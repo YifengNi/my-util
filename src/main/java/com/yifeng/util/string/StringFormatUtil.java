@@ -1,13 +1,20 @@
 package com.yifeng.util.string;
 
 import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.IdUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.yifeng.dto.Data2ExcelDTO;
+import com.yifeng.dto.Excel2DataDTO;
 import com.yifeng.util.file.FileUtil;
 import org.apache.commons.lang3.StringUtils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -32,8 +39,11 @@ public class StringFormatUtil {
         //         "CUST_TYPE";
         // System.out.println(batchUnderscoreToCamel(str));
 
-        String fileName = "E:\\文档\\工作\\lookup表插入sql语句字段.txt";
-        generateExcelFromSql(fileName);
+        String fileName = "E:\\文档\\工作\\L1NSSGH93MA019327.xlsx";
+        generateMesInsertSql(fileName);
+
+        // String fileName = "E:\\文档\\工作\\lookup表插入sql语句字段.txt";
+        // generateExcelFromSql(fileName);
 
         // String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
         // generateCodeFromDbFieldTxtV2(fileName, false);
@@ -319,6 +329,10 @@ public class StringFormatUtil {
         return joiner.toString();
     }
 
+    /**
+     * 根据插入SQL语句生成Excel文档
+     * @param fileName
+     */
     public static void generateExcelFromSql(String fileName) {
         List<String> dataList = FileUtil.readToStringList(fileName, true);
         List<Data2ExcelDTO> resultList = dataList.stream()
@@ -327,6 +341,7 @@ public class StringFormatUtil {
                         .replaceFirst("\\);", "").replaceAll("'", ""))
                 .map(item -> item.split(", "))
                 .map(item -> {
+                    // 可以修改这里进行业务变更
                     Data2ExcelDTO data = new Data2ExcelDTO();
                     data.setLookupTypeCode(item[0]).setLookupValueCode(item[1]).setLookupValueName(item[2])
                             .setRemark(item[10]);
@@ -335,5 +350,68 @@ public class StringFormatUtil {
         String[] strs = fileName.split("\\.");
         String newFileName = strs[0] + "-new.xlsx";
         FileUtil.writeExcel4OneSheet(newFileName, "待配置参数", Data2ExcelDTO.class, resultList);
+    }
+
+    public static void generateMesInsertSql(String fileName) {
+        List<Excel2DataDTO> dataList = FileUtil.readExcel(fileName, Excel2DataDTO.class);
+        List<String> stringList = new ArrayList<>(dataList.size());
+        String rex = "insert\n" +
+                "\tinto\n" +
+                "\tbiz_message_record\n" +
+                "(\n" +
+                "\t\tapi_key,\n" +
+                "\t\tmessage,\n" +
+                "\t\tout_message,\n" +
+                "\t\tsource,\n" +
+                "\t\t`type`,\n" +
+                "\t\tstatus,\n" +
+                "\t\tis_async,\n" +
+                "\t\tis_retry,\n" +
+                "\t\tretry_count,\n" +
+                "\t\tbiz_code\n" +
+                "\t)\n" +
+                "values(\n" +
+                "\t'%s',\n" +
+                "\t'%s',\n" +
+                "\t'',\n" +
+                "\t'inner',\n" +
+                "\t'ZQMES_OAS_ZQMES_OAS_R_001',\n" +
+                "\t0,\n" +
+                "\t1,\n" +
+                "\t1,\n" +
+                "\t0,\n" +
+                "\t'CarInfo-%s'\n" +
+                ");\n\n";
+
+        for (Excel2DataDTO item : dataList) {
+            Map<String, Object> msgMap = new HashMap<>(8);
+            String key = IdUtil.randomUUID();
+            msgMap.put("key", key);
+            msgMap.put("event", "ZQMES_OAS_ZQMES_OAS_R_001");
+
+            Map<String, Object> HEADER = new HashMap<>(8);
+            HEADER.put("BUSID", "ZQMES0300");
+            HEADER.put("SENDER", "ZQMES");
+            HEADER.put("RECID", IdUtil.randomUUID());
+            HEADER.put("DTSEND", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+            HEADER.put("RECEIVER", "OAS");
+
+            String vin = item.getVin();
+
+            Map<String, Object> bodyMap = new HashMap<>(8);
+            // bodyMap.put("HEADER", JSONObject.toJSONString(HEADER));
+            // bodyMap.put("OASMODEL", JSONObject.toJSONString(OASMODEL));
+
+            bodyMap.put("HEADER", HEADER);
+            bodyMap.put("OASMODEL", JSONObject.toJSON(item));
+
+            // msgMap.put("body", JSONObject.toJSONString(bodyMap));
+            msgMap.put("body", bodyMap);
+
+            String sql = String.format(rex, key, JSONObject.toJSONString(msgMap), vin);
+            stringList.add(sql);
+        }
+
+        FileUtil.writeToFile(stringList, FileUtil.getWriteFileName(fileName, "sql"));
     }
 }

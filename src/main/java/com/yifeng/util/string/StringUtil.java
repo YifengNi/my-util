@@ -1,7 +1,11 @@
 package com.yifeng.util.string;
 
 import com.google.common.base.CaseFormat;
+import com.yifeng.dto.Data2ExcelDTO;
 import org.apache.commons.lang3.StringUtils;
+
+import java.lang.reflect.Field;
+import java.util.Objects;
 
 /**
  * @Author niyf
@@ -31,6 +35,27 @@ public class StringUtil {
      */
     public static String underscoreToCamel(String source) {
         return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, source);
+    }
+
+    /**
+     * 填充对象的属性
+     * @param obj
+     * @param defaultStringValue
+     */
+    public static void fillObjField(Object obj, String defaultStringValue) {
+        for (Field field : obj.getClass().getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                String typeName = field.getType().getName();
+                if ("java.lang.String".equals(typeName)) {
+                    if (Objects.isNull(field.get(obj))) {
+                        field.set(obj, defaultStringValue);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("fillObjField err: " + e.getMessage());
+            }
+        }
     }
 
     /**
@@ -92,8 +117,12 @@ public class StringUtil {
         // System.out.println(underscoreToCamel(s1));
         // System.out.println(underscoreToCamel(s2));
 
-        String name = "com.xiaopeng.imperial.oms.mapper.oms.OmsNoticeMapper#saveNotice";
-        System.out.println("getFormatLoggerName(name) = " + getFormatLoggerName(name));
+        // String name = "com.xiaopeng.imperial.oms.mapper.oms.OmsNoticeMapper#saveNotice";
+        // System.out.println("getFormatLoggerName(name) = " + getFormatLoggerName(name));
+
+        Data2ExcelDTO obj = new Data2ExcelDTO();
+        fillObjField(obj, "N/A");
+        System.out.println("obj = " + obj);
     }
 
 }
