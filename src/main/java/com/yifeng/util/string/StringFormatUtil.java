@@ -10,11 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -39,23 +35,23 @@ public class StringFormatUtil {
         //         "CUST_TYPE";
         // System.out.println(batchUnderscoreToCamel(str));
 
-        String fileName = "E:\\文档\\工作\\L1NSSGH93MA019327.xlsx";
+        String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGHB5NA910001.xlsx";
         generateMesInsertSql(fileName);
 
-        // String fileName = "E:\\文档\\工作\\lookup表插入sql语句字段.txt";
+        // String fileName = "E:\\文档\\工作\\文件处理\\lookup表插入sql语句字段.txt";
         // generateExcelFromSql(fileName);
 
-        // String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
+        // String fileName = "E:\\文档\\工作\\文件处理\\数据库select语句字段.txt";
         // generateCodeFromDbFieldTxtV2(fileName, false);
 
-        // String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
+        // String fileName = "E:\\文档\\工作\\文件处理\\数据库select语句字段.txt";
         // generateCodeFromDbFieldTxtV2(fileName, true);
 
 
-        // String fileName = "E:\\文档\\工作\\数据库select语句字段.txt";
+        // String fileName = "E:\\文档\\工作\\文件处理\\数据库select语句字段.txt";
         // generateCodeFromDbFieldTxt(fileName);
 
-        // String fileName = "E:\\文档\\工作\\订单信息主动推送接口.txt";
+        // String fileName = "E:\\文档\\工作\\文件处理\\订单信息主动推送接口.txt";
         // generateCodeFromApiTxt(fileName);
 
         // List<String> carSourceTypeList = Arrays.asList("1", "2", "3");
@@ -391,7 +387,7 @@ public class StringFormatUtil {
 
             Map<String, Object> HEADER = new HashMap<>(8);
             HEADER.put("BUSID", "ZQMES0300");
-            HEADER.put("SENDER", "ZQMES");
+            HEADER.put("SENDER", "ZQMES-MANUAL");
             HEADER.put("RECID", IdUtil.randomUUID());
             HEADER.put("DTSEND", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
             HEADER.put("RECEIVER", "OAS");

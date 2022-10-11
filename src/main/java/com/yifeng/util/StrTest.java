@@ -1,9 +1,14 @@
 package com.yifeng.util;
 
+import cn.hutool.core.util.IdUtil;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -17,9 +22,141 @@ public class StrTest {
     public static void main(String[] args) {
         // imageSql();
 
-        // codeList();
+        codeList();
 
-        testAsync();
+        // testAsync();
+
+        // distinctTableName();
+        // System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        // System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")));
+        // testNull();
+
+        // msgSql();
+
+    }
+
+    public static void msgSql() {
+        Map<String, Object> msgMap = new HashMap<>(8);
+        String key = IdUtil.randomUUID();
+        msgMap.put("key", key);
+        msgMap.put("event", "ZQMES_OAS_ZQMES_OAS_R_001");
+
+        Map<String, Object> HEADER = new HashMap<>(8);
+        HEADER.put("BUSID", "ZQMES0300");
+        HEADER.put("SENDER", "ZQMES");
+        HEADER.put("RECID", IdUtil.randomUUID());
+        HEADER.put("DTSEND", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+        HEADER.put("RECEIVER", "OAS");
+
+        String param = "{\"CAR_TYPE\": \"NHQ7000BEVDQ\", \n" +
+                "    \"FACTORY_CODE\": \"肇庆小鹏新能源投资有限公司\", \n" +
+                "    \"PRODUCE_PLACE\": \"广东省肇庆市肇庆高新区龙湖大道33号\", \n" +
+                "    \"CERTIFICATE_NO\": \"XV1499000182479\",\n" +
+                "    \"ENGINE_TYPE\": \"N/A\",  \n" +
+                "    \"ENGINE_NO\": \"N/A\",   \n" +
+                "    \"ENGINE_CODE\": \"N/A\", \n" +
+                "    \"ENGINE_NO2\": \"TZ228XS68H\", \n" +
+                "    \"ENGINE_CODE2\": \"B4G7023411010002DC1\",\n" +
+                "    \"BATTERY_NO\": \"TPLi0662-380\", \n" +
+                "    \"BATTERY_CODE\": \"001PEAFD000002B730100020\",\n" +
+                "    \"OFFLINE_DATE\": \"2022-07-13 17:10:53\", \n" +
+                "    \"PRODUCE_DATE\": \"2021-08-06 14:07:40\",\n" +
+                "    \"BATCH_NO\": \"0000132034\", \n" +
+                "    \"VEMATERIEL_CODE\": \"DGKM9011BA2\",\n" +
+                "    \"CAR_COLOR_CODE\": \"1B\",\n" +
+                "    \"CAR_CONFIG_CODE\": \"DGKM9011BA2\",\n" +
+                "    \"VIN\": \"L1NSSGH95MA029258\",\n" +
+                "    \"CDU\": \"XPENGD224000130812409C65\",\n" +
+                "    \"RATED_POWER\": \"N/A\",\n" +
+                "    \"ELECTRICAL_COMPANY\": \"3691\",\n" +
+                "    \"CONTROLLER_TYPE\": \"KTZ37X50SXP0\",\n" +
+                "    \"ELECTRICAL_COMP\": \"100190\",\n" +
+                "    \"DRIVING_MOTOR\": \"TZ228XS68H\"}";
+        JSONObject OASMODEL = JSONObject.parseObject(param);
+        String vin = OASMODEL.getString("VIN");
+
+        Map<String, Object> bodyMap = new HashMap<>(8);
+        // bodyMap.put("HEADER", JSONObject.toJSONString(HEADER));
+        // bodyMap.put("OASMODEL", JSONObject.toJSONString(OASMODEL));
+
+        bodyMap.put("HEADER", HEADER);
+        bodyMap.put("OASMODEL", OASMODEL);
+
+        // msgMap.put("body", JSONObject.toJSONString(bodyMap));
+        msgMap.put("body", bodyMap);
+
+        String sql = String.format("insert\n" +
+                "\tinto\n" +
+                "\tbiz_message_record\n" +
+                "(\n" +
+                "\t\tapi_key,\n" +
+                "\t\tmessage,\n" +
+                "\t\tout_message,\n" +
+                "\t\tsource,\n" +
+                "\t\t`type`,\n" +
+                "\t\tstatus,\n" +
+                "\t\tis_async,\n" +
+                "\t\tis_retry,\n" +
+                "\t\tretry_count,\n" +
+                "\t\tbiz_code\n" +
+                "\t)\n" +
+                "values(\n" +
+                "\t'%s',\n" +
+                "\t'%s',\n" +
+                "\t'',\n" +
+                "\t'inner',\n" +
+                "\t'ZQMES_OAS_ZQMES_OAS_R_001',\n" +
+                "\t0,\n" +
+                "\t1,\n" +
+                "\t1,\n" +
+                "\t0,\n" +
+                "\t'CarInfo-%s'\n" +
+                ");\n", key, JSONObject.toJSONString(msgMap), vin);
+
+        System.out.println(sql);
+    }
+
+    public static void testNull() {
+        List<String> list = new ArrayList<>(10);
+        // List<String> list = null;
+        for (String item : list) {
+            System.out.println("item = " + item);
+        }
+
+        String[] arr = new String[0];
+        for (String item : arr) {
+            System.out.println("item = " + item);
+        }
+    }
+
+    /**
+     * 对表名进行去重
+     */
+    public static void distinctTableName() {
+        String s = "t_ve_bu_dlr_move_order\n" +
+                "t_ve_bu_dlr_move_demand\n" +
+                "t_mdm_org_dlr\n" +
+                "t_mdm_org_big_area\n" +
+                "t_mdm_org_small_area\n" +
+                "t_base_car_info\n" +
+                "t_mdm_org_employee\n" +
+                "t_ve_db_car_stock_house\n" +
+                "t_ve_bu_dlr_move_demand\n" +
+                "t_mdm_org_dlr\n" +
+                "t_mdm_org_big_area\n" +
+                "t_mdm_org_small_area\n" +
+                "t_base_car_info\n" +
+                "t_mdm_org_employee\n" +
+                "t_ve_db_car_stock_house\n" +
+                "t_ve_bu_dlr_move_order\n";
+        String[] ss = s.split("\\n");
+
+        Arrays.stream(ss)
+                .map(String::toLowerCase)
+                .filter(StringUtils::isNotBlank)
+                .distinct()
+                .sorted()
+                .forEach(System.out::println);
     }
 
     /**
@@ -67,25 +204,39 @@ public class StrTest {
     }
 
     public static void codeList() {
-        String s = "1\t\n" +
-                "XP18664306\n" +
-                "2\t\n" +
-                "XP18247450\n" +
-                "XP12962926";
+        String s = "L1NSPGH90MA063383\n" +
+                "L1NSPGH9XNA133182\n" +
+                "L1NSSGH99NA142650\n" +
+                "L1NSPGH96NA156216\n" +
+                "L1NSSGH93NA168208\n" +
+                "L1NSPGHB0NA173015\n" +
+                "L1NSPGHB7NA177613\n" +
+                "L1NSPGHB5NA178470\n" +
+                "L1NSPGHB0NA179543\n" +
+                "L1NSPGHB6NA180227\n" +
+                "L1NSPGHB8NA180844\n" +
+                "L1NSPGHB9NA182408\n" +
+                "L1NSPGHB3NA173414\n";
 
 
         Set<String> codeList = Arrays.stream(s.split("\\s")).filter(item -> item.length() > 6)
                 .distinct()
-                // .map(item -> "'" + item + "'")
+                // .map(item -> "'CarInfo-" + item + "'")
+                .map(item -> "'" + item + "'")
                 // .map(item -> "\"" + item + "\"")
-                .map(item -> "'" + item + "-REPLACE'")
+                // .map(item -> "'" + item + "-REPLACE'")
                 // .map(item -> item.replaceAll("\\-REPLACE", ""))
                 // .map(item -> item.replaceAll("REPLACE", ""))
                 // .map(item -> "'" + item + "REPLACE'")
                 .sorted()
                 .collect(Collectors.toSet());
         // System.out.println("codeList size = " + codeList.size());
+        // System.out.println(String.join(", ", codeList));
+
+
+        // System.out.println("codeList size = " + codeList.size());
         System.out.println(String.join(", ", codeList));
+
 
         // codeList.forEach(System.out::println);
 
