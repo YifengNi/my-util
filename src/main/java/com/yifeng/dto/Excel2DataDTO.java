@@ -4,6 +4,8 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @Author niyf
  * @Date 2022-7-27 15:27
@@ -58,12 +60,12 @@ public class Excel2DataDTO {
     private String batteryCode;
 
     @ExcelProperty(value = "OFFLINE_DATE")
-    @JSONField(name = "OFFLINE_DATE")
-    private String offlineDate;
+    @JSONField(name = "OFFLINE_DATE", format = "yyyy-MM-dd HH:mm:ss")
+    private Date offlineDate;
 
     @ExcelProperty(value = "PRODUCE_DATE")
-    @JSONField(name = "PRODUCE_DATE")
-    private String produceDate;
+    @JSONField(name = "PRODUCE_DATE", format = "yyyy-MM-dd HH:mm:ss")
+    private Date produceDate;
 
     @ExcelProperty(value = "BATCH_NO")
     @JSONField(name = "BATCH_NO")

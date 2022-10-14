@@ -1,5 +1,6 @@
 package com.yifeng.util.string;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -35,7 +36,7 @@ public class StringFormatUtil {
         //         "CUST_TYPE";
         // System.out.println(batchUnderscoreToCamel(str));
 
-        String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGHB5NA910001.xlsx";
+        String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGH97MA010843.xlsx";
         generateMesInsertSql(fileName);
 
         // String fileName = "E:\\文档\\工作\\文件处理\\lookup表插入sql语句字段.txt";
@@ -350,6 +351,10 @@ public class StringFormatUtil {
 
     public static void generateMesInsertSql(String fileName) {
         List<Excel2DataDTO> dataList = FileUtil.readExcel(fileName, Excel2DataDTO.class);
+        if (CollectionUtil.isEmpty(dataList)) {
+            throw new RuntimeException("Excel文档无数据，不进行处理");
+        }
+
         List<String> stringList = new ArrayList<>(dataList.size());
         String rex = "insert\n" +
                 "\tinto\n" +
@@ -392,6 +397,12 @@ public class StringFormatUtil {
             HEADER.put("DTSEND", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
             HEADER.put("RECEIVER", "OAS");
 
+            String batchNo = item.getBatchNo();
+            if (StringUtils.isNotBlank(batchNo)) {
+                // 批次号通常为10为数字，前面补0
+                batchNo = StringUtils.leftPad(batchNo, 10, "0");
+                item.setBatchNo(batchNo);
+            }
             String vin = item.getVin();
 
             Map<String, Object> bodyMap = new HashMap<>(8);
