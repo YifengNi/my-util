@@ -8,6 +8,7 @@ import com.yifeng.dto.Data2ExcelDTO;
 import com.yifeng.dto.Excel2DataDTO;
 import com.yifeng.util.file.FileUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +27,7 @@ public class StringFormatUtil {
     public static final String FULL_DATE_FORMAT_STRING = "yyyyMMddHHmmssSSS";
 
     public static void main(String[] args) {
+        StopWatch watch = StopWatch.createStarted();
         // String str = "SALE_ORDER_CODE\n" +
         //         "REPLACE_ORDER_CODE\n" +
         //         "CUST_NAME\n" +
@@ -36,8 +38,11 @@ public class StringFormatUtil {
         //         "CUST_TYPE";
         // System.out.println(batchUnderscoreToCamel(str));
 
-        String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGH97MA010843.xlsx";
-        generateMesInsertSql(fileName);
+        String fileName = "E:\\文档\\工作\\文件处理\\拉普达查询响应数据.txt";
+        generateExcelFromApiResp(fileName);
+
+        // String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGH97MA010843.xlsx";
+        // generateMesInsertSql(fileName);
 
         // String fileName = "E:\\文档\\工作\\文件处理\\lookup表插入sql语句字段.txt";
         // generateExcelFromSql(fileName);
@@ -80,6 +85,7 @@ public class StringFormatUtil {
         // System.out.println("dd = " + dd);
         // System.out.println("aa2 = " + aa2);
         // System.out.println("bb2 = " + bb2);
+        System.out.printf("处理总耗时：%sms%n", watch.getTime());
     }
 
     /**
@@ -347,6 +353,31 @@ public class StringFormatUtil {
         String[] strs = fileName.split("\\.");
         String newFileName = strs[0] + "-new.xlsx";
         FileUtil.writeExcel4OneSheet(newFileName, "待配置参数", Data2ExcelDTO.class, resultList);
+    }
+
+    /**
+     * 根据api接口响应结果生成Excel文档
+     * @param fileName
+     */
+    public static void generateExcelFromApiResp(String fileName) {
+        String data = FileUtil.readToString(fileName);
+        if (StringUtils.isBlank(data)) {
+            throw new RuntimeException("接口返回无数据，不进行处理");
+        }
+        JSONObject fileJson = JSONObject.parseObject(data);
+        // 字段列表
+        List<String> columnList = fileJson.getJSONArray("columns").toJavaList(JSONObject.class).stream()
+                .map(item -> item.getString("title"))
+                .collect(Collectors.toList());
+        // 数据列表
+        List<List<String>> resultList = fileJson.getJSONArray("results").toJavaList(JSONObject.class).stream()
+                .map(item -> columnList.stream().map(item::getString).collect(Collectors.toList()))
+                .collect(Collectors.toList());
+        // Excel文件表头列表，内层list有多少个元素就表示表头有几层，此处只需要一层表头所以只有单个元素
+        List<List<String>> headNameList = columnList.stream().map(Collections::singletonList).collect(Collectors.toList());
+        String[] strs = fileName.split("\\.");
+        String newFileName = strs[0] + "-new.xlsx";
+        FileUtil.writeExcel4OneSheetDynamically(newFileName, "导出查询数据", headNameList, resultList);
     }
 
     public static void generateMesInsertSql(String fileName) {
