@@ -38,11 +38,18 @@ public class StringFormatUtil {
         //         "CUST_TYPE";
         // System.out.println(batchUnderscoreToCamel(str));
 
-        String fileName = "E:\\文档\\工作\\文件处理\\拉普达查询响应数据.txt";
-        generateExcelFromApiResp(fileName);
+        // String fileName = "D:\\tool\\i18n\\待插入SQL数据.txt";
+        // String excludeWordFileName = "D:\\tool\\i18n\\数据库已存在的中文.txt";
+        // translationSqlFilter(fileName, excludeWordFileName);
 
-        // String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGH97MA010843.xlsx";
-        // generateMesInsertSql(fileName);
+        // String fileName = "D:\\tool\\i18n\\待插入SQL数据.txt";
+        // getChinese(fileName);
+
+        // String fileName = "E:\\文档\\工作\\文件处理\\拉普达查询响应数据.txt";
+        // generateExcelFromApiResp(fileName);
+
+        String fileName = "E:\\文档\\工作\\文件处理\\车辆信息1228.xlsx";
+        generateMesInsertSql(fileName);
 
         // String fileName = "E:\\文档\\工作\\文件处理\\lookup表插入sql语句字段.txt";
         // generateExcelFromSql(fileName);
@@ -86,6 +93,56 @@ public class StringFormatUtil {
         // System.out.println("aa2 = " + aa2);
         // System.out.println("bb2 = " + bb2);
         System.out.printf("处理总耗时：%sms%n", watch.getTime());
+    }
+
+    /**
+     * 排除已存在的中文翻译内容
+     * @param fileName
+     * @param excludeWordFileName
+     */
+    public static void translationSqlFilter(String fileName, String excludeWordFileName) {
+        Set<String> excludeWordSet = FileUtil.readToStringSet(excludeWordFileName, true);
+        List<String> list = FileUtil.readToStringList(fileName);
+        List<String> resultList = new ArrayList<>(list.size());
+        for (String item : list) {
+            if (StringUtils.isBlank(item)) {
+                resultList.add(item);
+                continue;
+            }
+            String[] splitArr = item.split("'");
+            if (splitArr.length < 2) {
+                resultList.add(item);
+                continue;
+            }
+
+            // 排除已存在的数据
+            if (excludeWordSet.contains(splitArr[1])) {
+                continue;
+            }
+
+            resultList.add(item);
+        }
+        System.out.println(String.join("\r\n", resultList));
+    }
+
+    /**
+     * 获取待插入翻译SQL中的中文内容
+     * @param fileName
+     */
+    public static void getChinese(String fileName) {
+        List<String> list = FileUtil.readToStringList(fileName);
+        List<String> resultList = new ArrayList<>(list.size());
+        for (String item : list) {
+            if (StringUtils.isBlank(item)) {
+                continue;
+            }
+            String[] splitArr = item.split("'");
+            if (splitArr.length < 2) {
+                continue;
+            }
+            resultList.add(splitArr[1]);
+        }
+        System.out.println("'" + String.join("', '", resultList) + "'");
     }
 
     /**
@@ -333,7 +390,7 @@ public class StringFormatUtil {
     }
 
     /**
-     * 根据插入SQL语句生成Excel文档
+     * 根据lookup表插入sql语句字段生成Excel文档，以供产品根据文档去生产配置数据
      * @param fileName
      */
     public static void generateExcelFromSql(String fileName) {
@@ -356,7 +413,7 @@ public class StringFormatUtil {
     }
 
     /**
-     * 根据api接口响应结果生成Excel文档
+     * 根据api接口响应结果（拉普达查询响应数据）生成Excel文档
      * @param fileName
      */
     public static void generateExcelFromApiResp(String fileName) {
@@ -380,6 +437,10 @@ public class StringFormatUtil {
         FileUtil.writeExcel4OneSheetDynamically(newFileName, "导出查询数据", headNameList, resultList);
     }
 
+    /**
+     * 根据Excel文档生成肇庆MES车辆信息的消息表插入语句
+     * @param fileName
+     */
     public static void generateMesInsertSql(String fileName) {
         List<Excel2DataDTO> dataList = FileUtil.readExcel(fileName, Excel2DataDTO.class);
         if (CollectionUtil.isEmpty(dataList)) {
