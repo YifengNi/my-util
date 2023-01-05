@@ -8,9 +8,7 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.WriteTable;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @Author niyf
@@ -48,6 +46,23 @@ public class FileUtil {
             }
         }
         return list;
+    }
+
+    public static Set<String> readToStringSet(String fileName, boolean isTrimmed) {
+        Set<String> set = new HashSet<>(128);
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName));) {
+            String str = null;
+            while ((str = br.readLine()) != null) {
+                if (isTrimmed) {
+                    str = str.trim();
+                }
+                set.add(str);
+            }
+        } catch (Exception e) {
+            System.out.println("读取文件[" + fileName + "]报错");
+            e.printStackTrace();
+        }
+        return set;
     }
 
     public static String readToString(String fileName) {
