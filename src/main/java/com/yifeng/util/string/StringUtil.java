@@ -123,6 +123,11 @@ public class StringUtil {
         Data2ExcelDTO obj = new Data2ExcelDTO();
         fillObjField(obj, "N/A");
         System.out.println("obj = " + obj);
+
+        // DateTime dateTime = DateUtil.beginOfWeek(new Date());
+        // System.out.println("dateTime = " + dateTime.toString("yyyy-MM-dd HH:mm:ss"));
+        // DateTime dateTime1 = DateUtil.endOfWeek(new Date());
+        // System.out.println("dateTime1 = " + dateTime1.toString("yyyy-MM-dd HH:mm:ss"));
     }
 
 }

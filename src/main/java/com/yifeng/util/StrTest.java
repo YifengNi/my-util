@@ -22,7 +22,7 @@ public class StrTest {
     public static void main(String[] args) {
         // imageSql();
 
-        codeList();
+        // codeList();
 
         // testAsync();
 
@@ -32,6 +32,8 @@ public class StrTest {
         // testNull();
 
         // msgSql();
+
+        System.out.println("System.currentTimeMillis() = " + System.currentTimeMillis());
 
     }
 

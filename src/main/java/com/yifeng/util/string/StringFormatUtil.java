@@ -48,8 +48,10 @@ public class StringFormatUtil {
         // String fileName = "E:\\文档\\工作\\文件处理\\拉普达查询响应数据.txt";
         // generateExcelFromApiResp(fileName);
 
-        String fileName = "E:\\文档\\工作\\文件处理\\车辆信息1228.xlsx";
+        String fileName = "E:\\文档\\工作\\文件处理\\8805.xlsx";
         generateMesInsertSql(fileName);
+
+        // formatJsonStr();
 
         // String fileName = "E:\\文档\\工作\\文件处理\\lookup表插入sql语句字段.txt";
         // generateExcelFromSql(fileName);
@@ -512,5 +514,16 @@ public class StringFormatUtil {
         }
 
         FileUtil.writeToFile(stringList, FileUtil.getWriteFileName(fileName, "sql"));
+    }
+
+    public static void formatJsonStr() {
+        String inStr = "{\"key\":\"1554793235898892288:1554793235957612544\",\"event\":\"DLR_MOVE_CAR_EVENT\",\"body\":\"{\\\"saleOrderCode\\\":\\\"XP12417285\\\",\\\"handleTypeEnum\\\":\\\"handleErpCallback\\\",\\\"operationTypeEnum\\\":\\\"UPDATE\\\",\\\"param\\\":{\\\"busid\\\":\\\"XDRAGON0600\\\",\\\"moveCarCode\\\":\\\"DMC1703619123\\\",\\\"resultCode\\\":\\\"S\\\",\\\"resultMsg\\\":\\\"测试修改数据\\\",\\\"receiveTime\\\":\\\"2022-01-09 14:30:08\\\",\\\"param\\\":{\\\"ZSTATUSTXT\\\":\\\"测试修改数据\\\",\\\"BUSID\\\":\\\"XDRAGON0600\\\",\\\"ZSTATUS_RE\\\":\\\"S\\\",\\\"LOGS_ID\\\":\\\"44075b527e9f43a8ba1c6e5ea7c92a0b\\\",\\\"ZMMCX\\\":\\\"DMC1703619123\\\"}}}\"}";
+
+        System.out.println("inStr = " + inStr);
+        JSONObject msgDto = JSONObject.parseObject(inStr);
+        System.out.println("msgDto = " + msgDto);
+        System.out.println("msgDto String = " + JSONObject.toJSONString(msgDto));
+
+
     }
 }
