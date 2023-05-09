@@ -1,0 +1,28 @@
+ SELECT                                                                    
+		 	IFNULL(CCD.BIG_AREA_NAME,'') BIG_AREA_NAME,          
+		 	IFNULL(D.SMALL_AREA_NAME,'')  SMALL_AREA_NAME,       
+		 	IFNULL(DLR.DLR_CODE,'')  DLR_CODE,                    
+		 	IFNULL(DLR.DLR_SHORT_NAME,'')  DLR_SHORT_NAME,          
+		 	IFNULL(EMP.EMP_NAME,'')  EMP_NAME,                     
+		 	DEAL.DEAL_LONG,                                                        
+		 	DATE_FORMAT(DEAL.RECEIVE_DATE,'%Y-%m-%d %H:%i:%s') RECEIVE_DATE   
+		 FROM  T_MDM_ORG_EMPLOYEE EMP                                     
+		 LEFT JOIN T_VE_BU_DLR_EMP_ORDER_DEAL DEAL ON EMP.EMP_ID=DEAL.EMP_ID  
+		   AND DEAL.created_date >= DATE_FORMAT(subdate(NOW(),if(date_format(NOW(),'%w') = 0,7,date_format(NOW(),'%w'))-1), '%Y-%m-%d') and DEAL.created_date <= DATE_FORMAT(subdate(NOW(),if(date_format(NOW(),'%w') = 0,7,date_format(NOW(),'%w'))-7), '%Y-%m-%d') 
+		 LEFT JOIN T_MDM_ORG_DLR DLR ON DLR.dlr_id=EMP.dlr_id                     
+		 LEFT JOIN T_MDM_ORG_BIG_AREA CCD ON DLR.BIG_AREA_ID = CCD.BIG_AREA_ID     
+		 LEFT JOIN T_MDM_ORG_SMALL_AREA D ON DLR.SMALL_AREA_ID = D.SMALL_AREA_ID   
+		 WHERE 1=1  and EMP.IS_ENABLE = '1' and dlr.org_type = 'D' 
+		AND EXISTS (                                                                                    
+					SELECT                                                                              
+						1                                                                               
+					FROM                                                                                
+						T_MDS_SYS_POSITION_DETAIL PD                                                    
+						INNER JOIN T_MDS_SYS_POSITION P ON PD.POSITION_ID = P.POSITION_ID               
+						INNER JOIN T_MDM_ORG_STATION S ON PD.STATION_ID = S.STATION_ID                  
+						INNER JOIN T_MDM_ORG_EMPLOYEE_STATION ES ON S.STATION_ID = ES.STATION_ID        
+					WHERE                                                                               
+						P.POSITION_CODE IN ( 'VE_003' )                                                 
+					AND EMP.EMP_ID = ES.EMP_ID                                                            
+					)                                                                                   
+					AND IF(IFNULL(DLR.IS_AB_STATION, '0') = '1', IFNULL(EMP.AB_STATION,'') , 'A') = 'A'       

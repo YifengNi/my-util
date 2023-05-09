@@ -1,4 +1,4 @@
-package com.yifeng;
+package com.yifeng.study.test;
 
 /**
  * @Author niyf

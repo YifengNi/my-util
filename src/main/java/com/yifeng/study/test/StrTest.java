@@ -1,4 +1,4 @@
-package com.yifeng.util;
+package com.yifeng.study.test;
 
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -34,6 +34,16 @@ public class StrTest {
         // msgSql();
 
         System.out.println("System.currentTimeMillis() = " + System.currentTimeMillis());
+
+        // SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // try {
+        //     Date date = format.parse("2023-02-07 12:05:36.0");
+        //     Date dateN = format.parse("2023-05-08 12:05:36.0");
+        //     long between = DateUtil.between(date, dateN, DateUnit.DAY);
+        //     System.out.println("between = " + between);
+        // } catch (ParseException e) {
+        //     throw new RuntimeException(e);
+        // }
 
     }
 

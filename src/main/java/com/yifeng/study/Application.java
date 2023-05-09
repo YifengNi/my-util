@@ -1,4 +1,4 @@
-package com.yifeng.util;
+package com.yifeng.study;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

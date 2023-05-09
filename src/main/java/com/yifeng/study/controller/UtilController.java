@@ -1,4 +1,4 @@
-package com.yifeng.util.controller;
+package com.yifeng.study.controller;
 
 import com.google.common.base.CaseFormat;
 import io.swagger.annotations.Api;

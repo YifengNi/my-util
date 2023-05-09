@@ -1,4 +1,4 @@
-package com.yifeng.dto;
+package com.yifeng.study.dto;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;

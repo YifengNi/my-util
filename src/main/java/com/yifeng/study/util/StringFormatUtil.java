@@ -1,12 +1,11 @@
-package com.yifeng.util.string;
+package com.yifeng.study.util;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.IdUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.yifeng.dto.Data2ExcelDTO;
-import com.yifeng.dto.Excel2DataDTO;
-import com.yifeng.util.file.FileUtil;
+import com.yifeng.study.dto.Data2ExcelDTO;
+import com.yifeng.study.dto.Excel2DataDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -48,7 +47,7 @@ public class StringFormatUtil {
         // String fileName = "E:\\文档\\工作\\文件处理\\拉普达查询响应数据.txt";
         // generateExcelFromApiResp(fileName);
 
-        String fileName = "E:\\文档\\工作\\文件处理\\8805.xlsx";
+        String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGHB3NA910000修改后信息.xlsx";
         generateMesInsertSql(fileName);
 
         // formatJsonStr();

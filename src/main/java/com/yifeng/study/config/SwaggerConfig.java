@@ -1,5 +1,6 @@
-package com.yifeng.util.config;
+package com.yifeng.study.config;
 
+import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +15,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
+// Knife4j访问路径：http://localhost:8888/doc.html
+@EnableKnife4j
 public class SwaggerConfig {
 
     @Autowired
@@ -28,7 +31,7 @@ public class SwaggerConfig {
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.yifeng.util"))
+                .apis(RequestHandlerSelectors.basePackage("com.yifeng.study"))
                 .paths(PathSelectors.any())
                 .build()
 //                .globalOperationParameters(Arrays.asList(parameter()))

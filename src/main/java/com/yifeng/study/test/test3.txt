@@ -1,0 +1,5 @@
+SELECT  
+    	  S.VIN  
+    	  FROM T_MDM_DLR_CAR_STORE S  
+    	  					INNER JOIN T_MDM_DLR_CAR C ON S.VIN = C.VIN    
+    	 					INNER JOIN t_base_car_info CT ON C.CAR_CONFIG_ID = CT.CAR_CONFIG_ID
