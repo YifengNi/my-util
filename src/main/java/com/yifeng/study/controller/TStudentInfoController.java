@@ -28,7 +28,6 @@ public class TStudentInfoController {
     @Autowired
     private TStudentInfoDao tStudentInfoDao;
 
-
     @GetMapping("/getStudentList")
     @ApiOperation("获取学生列表")
     @ApiImplicitParams({
@@ -36,8 +35,23 @@ public class TStudentInfoController {
                     , paramType = "query"),
     })
     public Object getStudentList(@RequestParam(required = false) String name) {
-    // public Object getStudentList() {
         return tStudentInfoDao.getStudentList(name);
+    }
+
+    @GetMapping("/insertTestNoRollbackFor")
+    @ApiOperation("测试事务的NoRollbackFor")
+    @ApiImplicitParams({
+    })
+    public Object insertTestNoRollbackFor() {
+        return tStudentInfoDao.insertTestNoRollbackFor();
+    }
+
+    @GetMapping("/insertTestRollbackFor")
+    @ApiOperation("测试事务的RollbackFor")
+    @ApiImplicitParams({
+    })
+    public Object insertTestRollbackFor() {
+        return tStudentInfoDao.insertTestRollbackFor();
     }
 }
 

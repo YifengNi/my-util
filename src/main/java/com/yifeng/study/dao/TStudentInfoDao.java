@@ -16,4 +16,8 @@ import java.util.List;
 public interface TStudentInfoDao extends IService<TStudentInfo> {
 
     List<TStudentInfo> getStudentList(String name);
+
+    boolean insertTestNoRollbackFor();
+
+    boolean insertTestRollbackFor();
 }

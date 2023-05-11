@@ -2,6 +2,7 @@ package com.yifeng.study;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Demo
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @date 2021-09-17
  */
 @SpringBootApplication
+@EnableAsync
 public class Application {
 
     public static void main(String[] args) {
