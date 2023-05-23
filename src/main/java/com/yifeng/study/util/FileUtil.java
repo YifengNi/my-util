@@ -35,7 +35,7 @@ public class FileUtil {
             }
         } catch (Exception e) {
             System.out.println("读取文件[" + fileName + "]报错");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             if (br != null) {
                 try {

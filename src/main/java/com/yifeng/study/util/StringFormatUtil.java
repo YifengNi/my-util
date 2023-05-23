@@ -25,6 +25,15 @@ public class StringFormatUtil {
 
     public static final String FULL_DATE_FORMAT_STRING = "yyyyMMddHHmmssSSS";
 
+    /**
+     * 匹配中文单词，不包括中文标点符号
+     */
+    private static final Pattern CHINESE_PATTERN = Pattern.compile("[\u4e00-\u9fa5]+");
+    /**
+     * 匹配中文单词，不包括中文标点符号
+     */
+    private static final Pattern PREFIX_PATTERN = Pattern.compile("\\[\\d+\\]");
+
     public static void main(String[] args) {
         StopWatch watch = StopWatch.createStarted();
         // String str = "SALE_ORDER_CODE\n" +
@@ -47,8 +56,11 @@ public class StringFormatUtil {
         // String fileName = "E:\\文档\\工作\\文件处理\\拉普达查询响应数据.txt";
         // generateExcelFromApiResp(fileName);
 
-        String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGHB3NA910000修改后信息.xlsx";
-        generateMesInsertSql(fileName);
+        // String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGHB3NA910000修改后信息.xlsx";
+        // generateMesInsertSql(fileName);
+
+        String fileName = "E:\\文档\\工作\\文件处理\\中药名数据.txt";
+        formatMedicineNameFromTxt(fileName, ",");
 
         // formatJsonStr();
 
@@ -524,5 +536,57 @@ public class StringFormatUtil {
         System.out.println("msgDto String = " + JSONObject.toJSONString(msgDto));
 
 
+    }
+
+    /**
+     * 格式化中药名称
+     * @param fileName
+     * @param delimiter
+     */
+    public static void formatMedicineNameFromTxt(String fileName, String delimiter) {
+        LinkedList<String> stringList = new LinkedList<>();
+        boolean isLastItemMedicineNameFlag = false;
+        for (String item : FileUtil.readToStringList(fileName)) {
+            // 空白行，或者是带有序号的作者等信息的行，过滤掉
+            if (StringUtils.isBlank(item) || PREFIX_PATTERN.matcher(item).find()) {
+                isLastItemMedicineNameFlag = false;
+                continue;
+            }
+
+            // 去掉中英文冒号前面的内容
+            String[] splitArr = item.split("：");
+            if (splitArr.length > 1) {
+                item = splitArr[1];
+            } else {
+                item = splitArr[0];
+            }
+            splitArr = item.split(":");
+            if (splitArr.length > 1) {
+                item = splitArr[1];
+            } else {
+                item = splitArr[0];
+            }
+            if (StringUtils.isBlank(item)) {
+                isLastItemMedicineNameFlag = false;
+                continue;
+            }
+
+            Matcher matcher = CHINESE_PATTERN.matcher(item);
+            StringJoiner joiner = new StringJoiner(delimiter);
+            // 如果上一行也是中药名，那么此处的中药名要接在上次中药名的后面
+            if (isLastItemMedicineNameFlag) {
+                joiner.add(stringList.removeLast());
+            }
+            while (matcher.find()) {
+                String group = matcher.group();
+                // System.out.println("group = " + group);
+                joiner.add(group);
+            }
+
+            stringList.addLast(joiner.toString());
+            isLastItemMedicineNameFlag = true;
+        }
+
+        FileUtil.writeToFile(stringList, FileUtil.getWriteFileName(fileName));
     }
 }
