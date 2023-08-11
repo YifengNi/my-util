@@ -6,9 +6,14 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.read.listener.PageReadListener;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.WriteTable;
+import com.alibaba.fastjson.JSONObject;
+import com.yifeng.study.dto.DynamicClass;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author niyf
@@ -122,11 +127,18 @@ public class FileUtil {
      * @param <T>
      */
     public static <T> void writeExcel4OneSheet(String fileName, String sheetName, Class<T> modelClass, List<T> dataList) {
-        try (OutputStream out = new FileOutputStream(fileName)) {
-            EasyExcel.write(out, modelClass).sheet(sheetName)
-                    // 设置字段宽度为自动调整，不太精确
-                    // .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
-                    .doWrite(dataList);
+        try (OutputStream out = Files.newOutputStream(Paths.get(fileName))) {
+            if (null == modelClass) {
+                EasyExcel.write(out).sheet(sheetName)
+                        // 设置字段宽度为自动调整，不太精确
+                        // .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                        .doWrite(dataList);
+            } else {
+                EasyExcel.write(out, modelClass).sheet(sheetName)
+                        // 设置字段宽度为自动调整，不太精确
+                        // .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                        .doWrite(dataList);
+            }
             System.out.println("Excel文件[" + fileName + "]写入完成");
         } catch (Exception e) {
             System.out.println("写入Excel文件[" + fileName + "]报错");
@@ -168,6 +180,24 @@ public class FileUtil {
         List<T> resultList = new ArrayList<>();
         EasyExcel.read(fileName, modelClass, new PageReadListener<T>(resultList::addAll)).sheet().doRead();
         return resultList;
+    }
+
+    public static void main(String[] args) {
+        // String fileName = "E:\\文档\\工作\\文件处理\\L1NSPGHB3NA910000修改后信息.xlsx";
+        // String fileName = "E:\\文档\\工作\\文件处理\\0-6岁儿童健康管理花名册2023.xls";
+        // String fileName = "E:\\文档\\工作\\文件处理\\0-6岁儿童健康管理花名册2023 - 副本.xlsx";
+        // String fileName = "E:\\文档\\工作\\文件处理\\0-6岁儿童健康管理花名册2023 - 副本-1.xls";
+        String fileName = "E:\\文档\\工作\\文件处理\\0-6岁儿童健康管理花名册2023 - 副本-1.xlsx";
+        int sheetSize = 3;
+        List<DynamicClass> resultList = new ArrayList<>();
+
+        // EasyExcel.read(fileName, new DataReadListener<>(new PageReadListener<>(resultList::addAll))).headRowNumber(6).doReadAll();
+        EasyExcel.read(fileName, new DataReadListener(resultList::addAll, sheetSize)).headRowNumber(6).doReadAll();
+        writeExcel4OneSheet(FileUtil.getWriteFileName(fileName, "xlsx"), "合并", DynamicClass.class, resultList);
+
+        // System.out.println(JSONObject.toJSON(resultList));
+        System.out.println(JSONObject.toJSON(resultList.stream().limit(10).collect(Collectors.toList())));
+        System.out.println("读取数量：" + resultList.size());
     }
 
 }
