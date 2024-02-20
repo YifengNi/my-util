@@ -60,7 +60,9 @@ public class StringFormatUtil {
         // generateMesInsertSql(fileName);
 
         String fileName = "E:\\文档\\工作\\文件处理\\中药名数据.txt";
-        formatMedicineNameFromTxt(fileName, ",");
+        // formatMedicineNameFromTxt(fileName, ",");
+
+        formatCurrencyData();
 
         // formatJsonStr();
 
@@ -588,5 +590,15 @@ public class StringFormatUtil {
         }
 
         FileUtil.writeToFile(stringList, FileUtil.getWriteFileName(fileName));
+    }
+
+    public static void formatCurrencyData() {
+        String data = "[{\"code\":\"10\",\"value\":\"EUR\",\"symbol\":\"€\"},{\"code\":\"20\",\"value\":\"NOK\",\"symbol\":\"Kr\"},{\"code\":\"30\",\"value\":\"CNY\",\"symbol\":\"￥\"},{\"code\":\"40\",\"value\":\"USD\",\"symbol\":\"$\"},{\"code\":\"50\",\"value\":\"HKD\",\"symbol\":\"HK$\"},{\"code\":\"60\",\"value\":\"JPY\",\"symbol\":\"JPY\"},{\"code\":\"70\",\"value\":\"AUD\",\"symbol\":\"AUD\"},{\"code\":\"80\",\"value\":\"DKK\",\"symbol\":\"DKK\"},{\"code\":\"90\",\"value\":\"NLG\",\"symbol\":\"F\"},{\"code\":\"100\",\"value\":\"BEF\",\"symbol\":\"BF\"},{\"code\":\"110\",\"value\":\"SEK\",\"symbol\":\"SEK\"},{\"code\":\"120\",\"value\":\"GBP\",\"symbol\":\"GBP\"},{\"code\":\"130\",\"value\":\"PLN\",\"symbol\":\"PLN\"},{\"code\":\"140\",\"value\":\"HUF\",\"symbol\":\"HUF\"},{\"code\":\"150\",\"value\":\"CHF\",\"symbol\":\"CHF\"},{\"code\":\"160\",\"value\":\"YTL\",\"symbol\":\"YTL\"},{\"code\":\"170\",\"value\":\"TWD\",\"symbol\":\"TWD\"},{\"code\":\"180\",\"value\":\"KRW\",\"symbol\":\"KRW\"},{\"code\":\"190\",\"value\":\"SGD\",\"symbol\":\"SGD\"},{\"code\":\"200\",\"value\":\"DHS\",\"symbol\":\"DHS\"},{\"code\":\"210\",\"value\":\"INR\",\"symbol\":\"INR\"}]";
+        List<Map> list = JSONObject.parseArray(data, Map.class);
+        StringJoiner joiner = new StringJoiner("\n");
+        for (Map map : list) {
+            joiner.add(map.get("code") + "\t" + map.get("value"));
+        }
+        System.out.println(joiner.toString());
     }
 }
