@@ -1,11 +1,14 @@
 package com.yifeng.study.util;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.IdUtil;
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSONObject;
 import com.yifeng.study.dto.Data2ExcelDTO;
 import com.yifeng.study.dto.Excel2DataDTO;
+import com.yifeng.study.listener.GenerateExportFieldFromFrontEndCodeListener;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -592,6 +595,9 @@ public class StringFormatUtil {
         FileUtil.writeToFile(stringList, FileUtil.getWriteFileName(fileName));
     }
 
+    /**
+     * 格式化货币数据
+     */
     public static void formatCurrencyData() {
         String data = "[{\"code\":\"10\",\"value\":\"EUR\",\"symbol\":\"€\"},{\"code\":\"20\",\"value\":\"NOK\",\"symbol\":\"Kr\"},{\"code\":\"30\",\"value\":\"CNY\",\"symbol\":\"￥\"},{\"code\":\"40\",\"value\":\"USD\",\"symbol\":\"$\"},{\"code\":\"50\",\"value\":\"HKD\",\"symbol\":\"HK$\"},{\"code\":\"60\",\"value\":\"JPY\",\"symbol\":\"JPY\"},{\"code\":\"70\",\"value\":\"AUD\",\"symbol\":\"AUD\"},{\"code\":\"80\",\"value\":\"DKK\",\"symbol\":\"DKK\"},{\"code\":\"90\",\"value\":\"NLG\",\"symbol\":\"F\"},{\"code\":\"100\",\"value\":\"BEF\",\"symbol\":\"BF\"},{\"code\":\"110\",\"value\":\"SEK\",\"symbol\":\"SEK\"},{\"code\":\"120\",\"value\":\"GBP\",\"symbol\":\"GBP\"},{\"code\":\"130\",\"value\":\"PLN\",\"symbol\":\"PLN\"},{\"code\":\"140\",\"value\":\"HUF\",\"symbol\":\"HUF\"},{\"code\":\"150\",\"value\":\"CHF\",\"symbol\":\"CHF\"},{\"code\":\"160\",\"value\":\"YTL\",\"symbol\":\"YTL\"},{\"code\":\"170\",\"value\":\"TWD\",\"symbol\":\"TWD\"},{\"code\":\"180\",\"value\":\"KRW\",\"symbol\":\"KRW\"},{\"code\":\"190\",\"value\":\"SGD\",\"symbol\":\"SGD\"},{\"code\":\"200\",\"value\":\"DHS\",\"symbol\":\"DHS\"},{\"code\":\"210\",\"value\":\"INR\",\"symbol\":\"INR\"}]";
         List<Map> list = JSONObject.parseArray(data, Map.class);
@@ -600,5 +606,75 @@ public class StringFormatUtil {
             joiner.add(map.get("code") + "\t" + map.get("value"));
         }
         System.out.println(joiner.toString());
+    }
+
+    private static final Pattern TITLE_PATTERN = Pattern.compile("\\s*title:\\s+\\$\\('(.+)'\\).+");
+    private static final Pattern DATA_INDEX_PATTERN = Pattern.compile("\\s*dataIndex:\\s+'(.+)'.*");
+
+    /**
+     * 根据前端代码生成导出响应字段
+     * @param exportExcelFileName 导出Excel文档
+     * @param frontEndFieldFileName 前端页面字段列表文档
+     * @param backEndExistedFieldFileName 后端已存在的字段列表文档
+     */
+    public static void generateExportFieldFromFrontEndCode(String exportExcelFileName, String frontEndFieldFileName
+            , String backEndExistedFieldFileName) {
+        Map<String, Integer> exportExcelFieldMap = new HashMap<>(8);
+        // 获取导出Excel文档的表头字段
+        EasyExcel.read(exportExcelFileName, new GenerateExportFieldFromFrontEndCodeListener(exportExcelFieldMap::putAll)).doReadAll();
+        System.out.println("导出Excel文档的表头字段个数，exportExcelFieldMap.size = " + exportExcelFieldMap.size());
+
+        // 获取前端页面字段列表
+        FileReader frontEndFieldFileReader = new FileReader(frontEndFieldFileName);
+        List<String> frontEndFieldFileLineList = frontEndFieldFileReader.readLines();
+        Map<String, String> fieldTitleMap = new HashMap<>(frontEndFieldFileLineList.size());
+        String lastTitle = "";
+        boolean findTitleFlag = false;
+        for (int i = 0; i < frontEndFieldFileLineList.size(); i++) {
+            String item = frontEndFieldFileLineList.get(i);
+            Matcher titleMatcher = TITLE_PATTERN.matcher(item);
+            Matcher dataIndexPattern = DATA_INDEX_PATTERN.matcher(item);
+            if (titleMatcher.find()) {
+                if (findTitleFlag) {
+                    throw new RuntimeException("前端页面字段列表文档中，title字段未找到对应的dataIndex字段，title = " + lastTitle);
+                }
+                lastTitle = titleMatcher.group(1);
+                findTitleFlag = true;
+            } else if (dataIndexPattern.find()) {
+                String field = dataIndexPattern.group(1);
+                if (!findTitleFlag) {
+                    throw new RuntimeException("前端页面字段列表文档中，dataIndex字段未找到对应的title字段，dataIndex = " + field);
+                }
+                fieldTitleMap.put(field, lastTitle);
+                findTitleFlag = false;
+            }
+        }
+
+        System.out.println("前端页面字段列表长度，fieldTitleMap.size = " + fieldTitleMap.size());
+
+        // 获取后端已存在的字段列表
+        FileReader backEndExistedFieldFileReader = new FileReader(backEndExistedFieldFileName);
+        List<String> backEndExistedFieldList = backEndExistedFieldFileReader.readLines();
+        System.out.println("后端已存在的字段列表长度，backEndExistedFieldList.size = " + backEndExistedFieldList.size());
+
+        List<String> filteredBackEndExistedFieldList = new ArrayList<>(backEndExistedFieldList.size());
+        for (String item : backEndExistedFieldList) {
+            item = item.trim();
+            String[] splitArr = item.split(" ");
+            if (splitArr.length < 3) {
+                continue;
+            }
+            String field = splitArr[2].replaceFirst(";", "");
+            String title = fieldTitleMap.get(field);
+            Integer exportFieldIndex = exportExcelFieldMap.get(title);
+            if (Objects.nonNull(exportFieldIndex)) {
+                String fieldItem = String.format("@ExcelProperty(value = \"%s\")\n%s\n", title, item);
+                filteredBackEndExistedFieldList.add(fieldItem);
+            }
+        }
+
+        System.out.printf("filteredBackEndExistedFieldList.size:%s, 过滤后字段个数是否等于导出文档字段个数:%s\n\n"
+                , filteredBackEndExistedFieldList.size(), filteredBackEndExistedFieldList.size() == exportExcelFieldMap.size());
+        System.out.println(String.join("\n", filteredBackEndExistedFieldList));
     }
 }
